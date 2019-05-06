@@ -1,0 +1,6 @@
+REPOSITORY                                      TAG                 IMAGE ID            CREATED             SIZE
+tennki/ubuntu-tmp-file                          latest              da526d76f43e        50 seconds ago      119MB
+ubuntu                                          16.04               a3551444fc85        5 days ago          119MB
+hello-world                                     latest              fce289e99eb9        4 months ago        1.84kB
+
+Контенеру присущи много дополнительных секций, которые отсутсвуют у образа. Секция state - с информацией о состоянии контейнера, секция networksettings - информация о сетевых настройках, graphdriver - информация о месте схранения R/W стоя контейнеара и о драйвере хранения. Так же содержатся настройки и ограничения вычислительных ресурсов для контейнера.
