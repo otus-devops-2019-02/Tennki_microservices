@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/otus-devops-2019-02/Tennki_infra.svg?branch=master)](https://travis-ci.org/otus-devops-2019-02/Tennki_microservices)
+
 # Tennki_microservices
 Tennki microservices repository
 
