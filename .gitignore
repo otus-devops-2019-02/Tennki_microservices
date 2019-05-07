@@ -1,2 +1,14 @@
+.venv/
+service_account.json
+*.retry
+*variables.json
+*.tfstate
+*.tfstate.*.backup
+*.tfstate.backup
+*.tfvars
+.terraform/
+nickjj.docker
+.vscode/
+
 
 
