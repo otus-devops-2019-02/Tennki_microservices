@@ -1,0 +1,13 @@
+- hosts: app
+  become: true
+  tags: deploy
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python-docker"
+  tasks:
+    - name: Run container
+      docker_container:
+        name: reddit_app 
+        image: tenki/otus-reddit:1.0
+        ports:
+        - "9292:9292"
+        state: started

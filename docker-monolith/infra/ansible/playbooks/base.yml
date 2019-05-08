@@ -1,0 +1,9 @@
+- name: Install docker
+  hosts: all
+  tags: base
+  become: true
+  vars:
+    docker__version: "18.09.5"
+
+  roles:
+    - role: "nickjj.docker"

@@ -1,0 +1,30 @@
+{
+    "variables": {
+        "project_id": "",
+        "source_image_family": "",
+        "machine_type": ""        
+      },
+    "builders": [
+        {
+            "type": "googlecompute",
+            "project_id": "{{user `project_id`}}",
+            "image_name": "docker-host-{{timestamp}}",
+            "image_description": "Docker-host image for reddit-app built on {{timestamp}}",
+            "image_family": "docker-host",
+            "source_image_family": "{{user `source_image_family`}}",
+            "zone": "europe-west3-a",
+            "ssh_username": "appuser",
+            "machine_type": "{{user `machine_type`}}",
+            "disk_size": 10,
+            "disk_type": "pd-standard"
+        }
+    ],
+    "provisioners": [
+        {
+        "type": "ansible",
+        "playbook_file": "ansible/playbooks/base.yml",
+        "ansible_env_vars": "ANSIBLE_ROLES_PATH=ansible/roles"
+        }
+        ]
+}
+
