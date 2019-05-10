@@ -52,3 +52,4 @@ docker run --rm -d --network=reddit -e POST_SERVICE_HOST=post1 -e COMMENT_SERVIC
 tenki/post:3.0
 tenki/comment:3.3
 tenki/ui:4.6
+
