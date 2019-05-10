@@ -1,0 +1,18 @@
+FROM ruby:2.6-alpine3.7
+
+ENV APP_HOME /app
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+ADD Gemfile* $APP_HOME/
+
+RUN apk add --no-cache --virtual .build-deps \
+    build-base \
+    && bundle install \
+    && apk del .build-deps
+
+ADD . $APP_HOME
+
+ENV COMMENT_DATABASE_HOST comment_db
+ENV COMMENT_DATABASE comments
+
+CMD ["puma"]
