@@ -11,6 +11,11 @@ RUN apk add --update --no-cache python3 \
     py3-pip \
     python3-dev \
     && pip3 install --no-cache-dir -r /app/requirements.txt \
+    && find /usr/lib/python3.6 -name '*.c' -delete \
+    && find /usr/lib/python3.6 -name '*.pxd' -delete \
+    && find /usr/lib/python3.6 -name '*.pyd' -delete \
+    && find /usr/lib/python3.6 -name '__pycache__' | xargs rm -r \
+    && rm -rf /var/cache/* \
     && apk del .build-deps
 
 ENV POST_DATABASE_HOST post_db
