@@ -84,3 +84,4 @@ tenki/ui:4.6
 Используя разные override файлы можно разворачивать разные инстансы приложения.
 docker-compose -p prod -f docker-compose.yml -f docker-compose.override.prod.yml up -d
 docker-compose -p stage -f docker-compose.yml -f docker-compose.override.stage.yml up -d
+
