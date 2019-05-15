@@ -13,12 +13,7 @@ RUN apk add --update --no-cache  ruby \
     ruby-dev \
     ruby-rdoc \
     ruby-irb \
-    && bundle install --without development:test:assets -j4 \
-    && rm -rf /usr/lib/ruby/gems/2.4.0/cache \
-    && rm -rf /root/.bundle/cache/compact_index/* \
-    && rm -rf /var/cache/* \
-    && find /usr/lib/ruby/gems/2.4.0/gems/ -name "*.c" -delete \
-    && find /usr/lib/ruby/gems/2.4.0/gems/ -name "*.o" -delete \
+    && bundle install \
     && apk del .build-deps
 
 ADD . $APP_HOME

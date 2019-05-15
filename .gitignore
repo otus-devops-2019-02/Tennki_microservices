@@ -10,6 +10,6 @@ service_account.json
 nickjj.docker
 .vscode/
 *.zip
-
+*.env
 
 

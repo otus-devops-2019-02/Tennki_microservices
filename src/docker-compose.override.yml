@@ -1,0 +1,25 @@
+version: '3.3'
+
+services:
+  post_db:
+    volumes:
+      - test_db:/data/db
+  ui:
+    volumes:
+      - "${SRC}/ui:/app"
+    working_dir: /app
+    command: puma -w2 --debug
+
+  post:
+    working_dir: /app
+    volumes:
+      - "${SRC}/post-py:/app"
+    
+  comment:
+    volumes:
+      - "${SRC}/comment:/app"
+    working_dir: /app
+    command: puma -w2 --debug
+
+volumes:
+  test_db:
