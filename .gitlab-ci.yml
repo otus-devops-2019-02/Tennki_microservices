@@ -16,8 +16,10 @@ before_script:
 
 build_job:
   stage: build
+  image: docker:stable
   script:
-    - echo 'Building'
+  - docker info
+  - docker build -t $REGISTRY_USER/reddit ./reddit
 
 test_unit_job:
   stage: test
