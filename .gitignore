@@ -13,4 +13,5 @@ nickjj.docker
 *.env
 *.key
 credentials.yml
+slack.webhook
 

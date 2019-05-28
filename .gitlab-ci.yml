@@ -69,12 +69,8 @@ stop_review:
   script:
     - echo "Remove $CI_ENVIRONMENT_SLUG environment"
     - cd gitlab-ci/ansible
-    - ls -la
-#    - pip install -r requirements.txt
-#    - echo $ANSIBLE_VAULT_KEY > vault.key
+    - pip install -r requirements.txt
 #    - chmod 700 .
-#    - ansible-vault decrypt service_account.json.enc
-#    - mv service_account.json.enc service_account.json
     - ansible-playbook -e CI_ENVIRONMENT_SLUG=$CI_ENVIRONMENT_SLUG playbooks/destroy.yml
   when: manual
   environment:
