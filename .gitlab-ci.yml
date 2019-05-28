@@ -52,7 +52,7 @@ branch review:
     - mv service_account.json.enc service_account.json
     - mv deploy.enc ~/.ssh/deploy
     - chmod 0600 ~/.ssh/deploy    
-    - ansible-playbook -e CI_ENVIRONMENT_SLUG=$CI_ENVIRONMENT_SLUG playbook/site.yml
+    - ansible-playbook -e CI_ENVIRONMENT_SLUG=$CI_ENVIRONMENT_SLUG playbooks/site.yml
   environment:
     name: branch/$CI_COMMIT_REF_NAME
     url: http://$CI_ENVIRONMENT_SLUG.tennki.tk
@@ -74,7 +74,7 @@ stop_review:
     - chmod 700 .
     - ansible-vault decrypt service_account.json.enc
     - mv service_account.json.enc service_account.json
-    - ansible-playbook -e CI_ENVIRONMENT_SLUG=$CI_ENVIRONMENT_SLUG playbook/destroy.yml
+    - ansible-playbook -e CI_ENVIRONMENT_SLUG=$CI_ENVIRONMENT_SLUG playbooks/destroy.yml
   when: manual
   environment:
     name: branch/$CI_COMMIT_REF_NAME
