@@ -39,7 +39,7 @@ test_integration_job:
     - echo 'Testing 2'
 
 branch review:
-  image: ansible
+  image: ansible/ubuntu14.04-ansible
   stage: review
   script: 
     - echo "Deploy to $CI_ENVIRONMENT_SLUG"
@@ -60,7 +60,7 @@ branch review:
     - master
 
 stop_review:
-  image: ansible
+  image: ansible/ubuntu14.04-ansible
   stage: review
   variables:
     GIT_STRATEGY: none
