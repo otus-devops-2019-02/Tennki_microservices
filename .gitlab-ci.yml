@@ -43,7 +43,7 @@ branch review:
   stage: review
   script: 
     - echo "Deploy to $CI_ENVIRONMENT_SLUG"
-    - cd ansible
+    - cd gitlab-ci/ansible
     - pip install -r requirements.txt
     - echo $ANSIBLE_VAULT_KEY > ~/.ansible/vault.key
     - ansible-vault decrypt deploy.enc service_account.json.enc
@@ -66,7 +66,7 @@ stop_review:
     GIT_STRATEGY: none
   script:
     - echo "Remove $CI_ENVIRONMENT_SLUG environment"
-    - cd ansible
+    - cd gitlab-ci/ansible
     - pip install -r requirements.txt
     - echo $ANSIBLE_VAULT_KEY > ~/.ansible/vault.key
     - ansible-vault decrypt service_account.json.enc
