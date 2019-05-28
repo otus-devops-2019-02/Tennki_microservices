@@ -1,0 +1,42 @@
+- name: Destroy GCP resources
+  hosts: localhost
+  gather_facts: no
+  tags: destroy
+  vars_files:
+    - "{{ lookup('env', 'PWD') }}/files/env-vars.yml"
+
+  tasks:
+    - name: Delete a resource record set
+      gcp_dns_resource_record_set:
+        name: "{{ CI_ENVIRONMENT_SLUG }}.tennki.tk."
+        managed_zone: {"description": "",
+                "dnsName": "tennki.tk.",
+                "name": "tennki",
+                "visibility": "public"
+            }
+        type: A
+        project: "{{ project }}"
+        auth_kind: "{{ cred_kind }}"
+        service_account_file: "{{ cred_file }}"
+        state: absent
+
+    - name: Delete a GCE instance
+      gcp_compute_instance:        
+        name: "{{ CI_ENVIRONMENT_SLUG }}"
+        zone: "{{ zone }}"
+        project: "{{ project }}"
+        auth_kind: "{{ cred_kind }}"
+        service_account_file: "{{ cred_file }}"
+        scopes: "{{ scopes }}"
+        state: absent
+
+
+    - name: Delete an IP address for instance
+      gcp_compute_address:
+        name: "{{ CI_ENVIRONMENT_SLUG }}-ip"
+        region: "{{ region }}"
+        project: "{{ project }}"
+        service_account_file: "{{ cred_file }}"
+        auth_kind: "{{ cred_kind }}"
+        state: absent
+      

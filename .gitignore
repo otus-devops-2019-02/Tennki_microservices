@@ -11,5 +11,6 @@ nickjj.docker
 .vscode/
 *.zip
 *.env
-
+*.key
+credentials.yml
 

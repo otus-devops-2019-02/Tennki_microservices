@@ -84,3 +84,36 @@ tenki/ui:4.6
 Используя разные override файлы можно разворачивать разные инстансы приложения.
 docker-compose -p prod -f docker-compose.yml -f docker-compose.override.prod.yml up -d
 docker-compose -p stage -f docker-compose.yml -f docker-compose.override.stage.yml up -d
+
+
+# Gitlab-ci-1
+
+- Билд образа приложения происходит в ранером на гитлабе.
+- Развертывание gitlab сделано через terraform.
+    Установка и запуск приложения выполняется через провиженеры.
+    На выходе получаем готовый сервис, но без ранеров.
+- Автоматическое развернтывание ранеров
+    Ранеры запускаются на gitlab сервере в докер контейнерах. Но можно запускать ранеры на другом сервер (нужно доробатывать плейбук).
+    На целевом сервере должны быть установлены:
+    python>=2.7
+    python модули python-gitlab, docker (ставить через pip)
+    Установка компонентов в плейбукe base.yml
+
+    Файл конфигурации runners_def.yml
+    Указываются имена ранеров, тэги и исполнитель (executor)
+
+    Типовой шаблон конфигурации для ранера config.toml.j2. В момент проигрывания плейбука в него подставляются переменные с описанием ранера и token, который получаем при регистрации. Потом копируем шаблон в каталог смонтированный в контейнер.
+
+    Файл с учетными данными для регистрации ранеров находится в файле credentials.yml 
+    !!! Надо зашифровать.)
+
+    Запуск/остановка прейбуком runners.yml (каталога ansible). Используются тэги create/delete/start/stop. Для запуска контейнеров используется модуль docker_comtainer, для регистрации ранеров используется модуль gitlab_runner (появился в ansible 2.8)
+    Примеры:
+    - Запуск ранеров и регистрация на гитлабе:
+        ansible-playbook -i gcp.yml -t create playbooks/runners.yml
+    - Остановка ранеров и удаление из гитлабе:
+        ansible-playbook -i gcp.yml -t delete playbooks/runners.yml
+    - Запуск контейнеров ранеров:
+        ansible-playbook -i gcp.yml -t start playbooks/runners.yml
+    - Остановка контейнеров ранеров:
+        ansible-playbook -i gcp.yml -t stop playbooks/runners.yml
