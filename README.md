@@ -88,26 +88,55 @@ docker-compose -p stage -f docker-compose.yml -f docker-compose.override.stage.y
 
 # Gitlab-ci-1
 
-- Билд образа приложения происходит в ранером на гитлабе.
-- Развертывание gitlab сделано через terraform.
-    Установка и запуск приложения выполняется через провиженеры.
+- Билд образа приложения происходит ранером на гитлабе. Ранер запускается из образа docker:stable. В ранер смонтирован докер сокет для доступа к докер-демону хоста.
+    Кронфиг ранера:
+    ....
+    volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
+    ....
+
+    В гитлабе заданы переменные $REGISTRY_USER и $REGISTRY_PASSWORD для именования образов и загрузки на docker hub (не доделано, но примерный код загрузки образа закоментирован в .gitlab-ci.yml секция docker push).
+
+- Настроена интеграция gitlab со slack. 
+    Ссылка на чат:
+    https://devops-team-otus.slack.com/messages/CH3LFN14N/
+
+- Развертывание gitlab сделано через terraform. Каталог gitlab-ci/terraform/gitlab
+    Установка и запуск приложения выполняется через провиженеры. 
+      - Установка базовых компонентов описана в ansible плейбуке gitlab-ci/ansible/playbooks/base.yml.
+      - Запуск самого gitlab сделана через docker-compose gitlab-ci/terraform/gitlab/docker-compose.yml
     На выходе получаем готовый сервис, но без ранеров.
-- Автоматическое развернтывание ранеров
+
+
+- Развертывание динамического окружения сделано через ansible. Использован модуль gcp_compute.
+    Ранер запускается из образа python:2.7
+    - Файлы с учетными данными для доступа к GCP (service_account.json.enc) и к созданному истансу по ssh (deploy.enc) зашифрованы ansible-vault. В гитлабе задана переменная $ANSIBLE_VAULT_KEY для расшифровки файлов.
+    - Развертывание выполнятеся плейбуком gitlab-ci/ansible/playbooks/site.yml, который включает в себя плейбуки env.yml и deploy.yml Файл с переменными gitlab-ci/ansible/files/env-vars.yml
+      - В env.yml описано создание статического адреса для нового истанса, создание инстанса и регистрация А-записи для инстанса в CloudDNS. Предварительно создана dns зона "tennki.tk", в которой регистрируются dns записи.
+      - В deploy.yml описан запуск приложения через docker-compose (gitlab-ci/ansible/files/docker-compose.yml). В рамках лабораторной тег приложения зафиксирован, но можно сделать через переменную.
+    
+    Ручной запуск создания окружения и запуска приложения:
+    ansible-playbook -e CI_ENVIRONMENT_SLUG=branch-gitlab-ci-###### playbooks/site.yml
+
+    - Также в gitlab-ci.yml описано задание для удаления окружения, которое запускается вручную. Удаление происходит через ansible плейбук gitlab-ci/ansible/playbooks/destroy.yml
+    
+    Ручной запуск удаления окружения:
+    ansible-playbook -e CI_ENVIRONMENT_SLUG=branch-gitlab-ci-###### playbooks/destroy.yml
+
+- Автоматическое развернтывание ранеров.
     Ранеры запускаются на gitlab сервере в докер контейнерах. Но можно запускать ранеры на другом сервер (нужно доробатывать плейбук).
     На целевом сервере должны быть установлены:
     python>=2.7
     python модули python-gitlab, docker (ставить через pip)
-    Установка компонентов в плейбукe base.yml
+    Установка компонентов описана в плейбукe gitlab-ci/ansible/playbooks/base.yml
 
     Файл конфигурации runners_def.yml
     Указываются имена ранеров, тэги и исполнитель (executor)
 
     Типовой шаблон конфигурации для ранера config.toml.j2. В момент проигрывания плейбука в него подставляются переменные с описанием ранера и token, который получаем при регистрации. Потом копируем шаблон в каталог смонтированный в контейнер.
 
-    Файл с учетными данными для регистрации ранеров находится в файле credentials.yml 
-    !!! Надо зашифровать.)
-
-    Запуск/остановка прейбуком runners.yml (каталога ansible). Используются тэги create/delete/start/stop. Для запуска контейнеров используется модуль docker_comtainer, для регистрации ранеров используется модуль gitlab_runner (появился в ansible 2.8)
+    Файл с учетными данными для регистрации ранеров находится в файле credentials.yml (credentials.yml.example)
+    
+    Запуск/остановка прейбуком runners.yml (из каталога ansible). Используются тэги create/delete/start/stop. Для запуска контейнеров используется модуль docker_comtainer, для регистрации ранеров используется модуль gitlab_runner (появился в ansible 2.8)
     Примеры:
     - Запуск ранеров и регистрация на гитлабе:
         ansible-playbook -i gcp.yml -t create playbooks/runners.yml
