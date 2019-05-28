@@ -45,6 +45,7 @@ branch review:
     - echo "Deploy to $CI_ENVIRONMENT_SLUG"
     - cd gitlab-ci/ansible
     - pip install -r requirements.txt
+    - mkdir ~/.ansible && mkdir ~/.ssh
     - echo $ANSIBLE_VAULT_KEY > ~/.ansible/vault.key
     - ansible-vault decrypt deploy.enc service_account.json.enc
     - mv service_account.json.enc service_account.json
@@ -68,7 +69,7 @@ stop_review:
     - echo "Remove $CI_ENVIRONMENT_SLUG environment"
     - cd gitlab-ci/ansible
     - pip install -r requirements.txt
-    - echo $ANSIBLE_VAULT_KEY > ~/.ansible/vault.key
+    - mkdir ~/.ansible && echo $ANSIBLE_VAULT_KEY > ~/.ansible/vault.key
     - ansible-vault decrypt service_account.json.enc
     - mv service_account.json.enc service_account.json
     - ansible -e CI_ENVIRONMENT_SLUG=$CI_ENVIRONMENT_SLUG playbook/destroy.yml
