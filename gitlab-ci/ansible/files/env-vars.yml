@@ -1,0 +1,10 @@
+project: "docker-239809"
+cred_kind: "serviceaccount"
+cred_file: "../service_account.json"
+zone: "europe-west3-a"
+region: "europe-west3"
+scopes:
+  - https://www.googleapis.com/auth/compute
+dns_zone_name: "tennki"
+dns_domain_name: "tennki.tk."
+image: "projects/docker-239809/global/images/family/docker-host"

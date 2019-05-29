@@ -1,0 +1,30 @@
+---
+- name: Install packages
+  hosts: gitlab
+  tags: base
+  become: true
+  vars:
+    docker__version: "18.09.5"
+    
+  tasks:  
+    - name: Install python for Ansible
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      changed_when: False
+
+    - name: Install base packages
+      apt: 
+        name: ['python-pip']
+        state: present
+
+    - name: Upgrade pip
+      pip: 
+        name: pip
+        state: latest
+
+    - name: Install python packages
+      pip: 
+        name: ['python-gitlab', 'docker']
+        state: present
+
+  roles:
+    - role: "nickjj.docker"

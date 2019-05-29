@@ -1,0 +1,100 @@
+stages:
+  - build
+  - test
+  - review
+  - stage
+  - production
+
+variables:
+  DATABASE_URL: 'mongodb://mongo/user_posts'
+
+build_job:
+  image: docker:stable
+  stage: build  
+  script:
+  - docker info
+  - docker build -t $REGISTRY_USER/reddit ./reddit
+
+#docker push:
+#  stage: push
+#  only:
+#  - master
+#  script:
+#  - echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USER" --password-stdin
+#  - docker push $REGISTRY_USER/reddit
+
+test_unit_job:
+  image: ruby:2.4.2
+  stage: test
+  services:
+    - mongo:latest  
+  script:
+    - cd reddit
+    - bundle install
+    - ruby simpletest.rb
+
+test_integration_job:
+  stage: test
+  script:
+    - echo 'Testing 2'
+
+branch review:
+  image: python:2.7
+  stage: review
+  script: 
+    - echo "Deploy to $CI_ENVIRONMENT_SLUG"
+    - cd gitlab-ci/ansible
+    - pip install -r requirements.txt
+    - mkdir ~/.ssh
+    - echo $ANSIBLE_VAULT_KEY > vault.key
+    - chmod 700 .
+    - ansible-vault decrypt deploy.enc service_account.json.enc
+    - mv service_account.json.enc service_account.json
+    - mv deploy.enc ~/.ssh/deploy
+    - chmod 0600 ~/.ssh/deploy    
+    - ansible-playbook -e CI_ENVIRONMENT_SLUG=$CI_ENVIRONMENT_SLUG playbooks/site.yml
+  environment:
+    name: branch/$CI_COMMIT_REF_NAME
+    url: http://$CI_ENVIRONMENT_SLUG.tennki.tk
+  only:
+    - branches
+  except:
+    - master
+
+stop_review:
+  image: python:2.7
+  stage: review
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - echo "Remove $CI_ENVIRONMENT_SLUG environment"
+    - cd gitlab-ci/ansible
+    - pip install -r requirements.txt
+#    - chmod 700 .
+    - ansible-playbook -e CI_ENVIRONMENT_SLUG=$CI_ENVIRONMENT_SLUG playbooks/destroy.yml
+  when: manual
+  environment:
+    name: branch/$CI_COMMIT_REF_NAME
+    action: stop
+
+staging:
+  stage: stage
+  when: manual
+  only:
+    - /^\d+\.\d+\.\d+/
+  script:
+    - echo 'Deploy'
+  environment:
+    name: stage
+    url: http://beta.example.com
+
+production:
+  stage: production
+  when: manual
+  only:
+    - /^\d+\.\d+\.\d+/
+  script:
+    - echo 'Deploy'
+  environment:
+    name: production
+    url: http://example.com

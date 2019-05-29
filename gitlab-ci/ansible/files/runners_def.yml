@@ -1,0 +1,11 @@
+runners:
+  runner1:
+    tags:
+      - linux
+      - docker
+    executor: docker
+  runner2:
+    tags:
+      - linux
+      - docker
+    executor: docker

@@ -1,0 +1,63 @@
+---
+- hosts: gitlab
+  become: true
+
+  vars_files:
+    - "{{ inventory_dir }}/files/credentials.yml"
+    - "{{ inventory_dir }}/files/runners_def.yml"
+
+  tasks:
+    - name: Start runner container
+      docker_container:
+        name: "{{ item.key }}"
+        image: gitlab/gitlab-runner:latest
+        restart_policy: always
+        volumes:
+          - /srv/gitlab-runner-{{item.key}}/config:/etc/gitlab-runner
+          - /var/run/docker.sock:/var/run/docker.sock
+        state: started
+      with_dict: "{{ runners }}"
+      tags: 
+        - create
+        - start
+
+    - name: Register runner      
+      gitlab_runner:
+        url: "{{ gitlab_url }}"
+        api_token: "{{ access_token }}"
+        registration_token: "{{ registration_token }}"
+        description: "{{ item.key }}"
+        state: present
+        active: True
+        tag_list: "{{ item.value.tags|default(omit)|list}}"
+        run_untagged: True
+        locked: False
+      with_dict: "{{ runners }}"
+      tags: create
+      register: result
+    
+    - name: Add gitlab runner config
+      template:
+        src: "{{ inventory_dir }}/files/config.toml.j2"
+        dest: /srv/gitlab-runner-{{item.item.key}}/config/config.toml
+      with_items: '{{ result.results }}'
+      tags: create
+
+    - name: Unregister runner      
+      gitlab_runner:
+        url: "{{ gitlab_url }}"
+        api_token: "{{ access_token }}"
+        registration_token: "{{ registration_token }}"
+        description: "{{ item.key }}"
+        state: absent
+      with_dict: "{{ runners }}"
+      tags: delete
+
+    - name: Delete runner container    
+      docker_container:
+        name: "{{ item.key }}"
+        state: absent
+      with_dict: "{{ runners }}"  
+      tags: 
+        - delete
+        - stop

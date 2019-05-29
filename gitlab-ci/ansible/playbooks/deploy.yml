@@ -1,0 +1,27 @@
+
+- name: Manage new instances
+  hosts: new_instances
+  become: true
+  tags: deploy
+  gather_facts: no
+
+  tasks:
+    - name: Copy compose file
+      file:
+        path: /srv/reddit
+        state: directory
+
+    - name: Copy compose file
+      copy:
+        src: "{{ lookup('env', 'PWD') }}/files/docker-compose.yml"
+        dest: "/srv/reddit/docker-compose.yml"
+      
+    - name: Run application
+      command: docker-compose up -d
+      args:
+        chdir: /srv/reddit/
+      environment:
+        - USERNAME: "tenki"
+          TAG: 2.0
+          UI_PORT: 80
+

@@ -1,0 +1,5 @@
+ansible>=2.8
+google-auth==1.6.2
+requests >= 2.18.4
+python-gitlab>=1.8.0
+module>=0.2.1
