@@ -85,7 +85,6 @@ tenki/ui:4.6
 docker-compose -p prod -f docker-compose.yml -f docker-compose.override.prod.yml up -d
 docker-compose -p stage -f docker-compose.yml -f docker-compose.override.stage.yml up -d
 
-
 # Gitlab-ci-1
 
 - Билд образа приложения происходит ранером на гитлабе. Ранер запускается из образа docker:stable. В ранер смонтирован докер сокет для доступа к докер-демону хоста.
@@ -123,7 +122,7 @@ docker-compose -p stage -f docker-compose.yml -f docker-compose.override.stage.y
     ansible-playbook -e CI_ENVIRONMENT_SLUG=branch-gitlab-ci-###### playbooks/destroy.yml
 
 - Автоматическое развернтывание ранеров.
-    Ранеры запускаются на gitlab сервере в докер контейнерах. Но можно запускать ранеры на другом сервер (нужно доробатывать плейбук).
+    Ранеры запускаются на gitlab сервере в докер контейнерах. Но можно запускать ранеры на другом сервер (нужно дорабатывать плейбук).
     На целевом сервере должны быть установлены:
     python>=2.7
     python модули python-gitlab, docker (ставить через pip)
@@ -146,3 +145,4 @@ docker-compose -p stage -f docker-compose.yml -f docker-compose.override.stage.y
         ansible-playbook -i gcp.yml -t start playbooks/runners.yml
     - Остановка контейнеров ранеров:
         ansible-playbook -i gcp.yml -t stop playbooks/runners.yml
+
