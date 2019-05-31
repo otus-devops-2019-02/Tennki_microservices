@@ -146,3 +146,43 @@ docker-compose -p stage -f docker-compose.yml -f docker-compose.override.stage.y
     - Остановка контейнеров ранеров:
         ansible-playbook -i gcp.yml -t stop playbooks/runners.yml
 
+# Monitoring-1
+- Для мониторинга состояния приложения, бд и хоста в docker/docker-compose.yml добавлен prometheus и exporter-ы.
+- Для мониторинга хоста использован node-exporter (prom/node-exporter:v0.15.2)
+- Для мониторинга Mongo используется percona/mongodb_exporter v0.7.0. Docker образ собран на alpine:3.7 (monitoring/mongo_exporter/Dockerfile)
+- В качестве blackbox exporter использован Google cloudeprober. Докер образ cloudprober/cloudprober:v0.10.2. Конфигурация в файле monitoring/cloudprober/cloudprober.cfg
+- Для сборки образов создан makefile. Файл конфигурации config.env (config.env.example)
+    - Данный файл позводяет получить краткую справку по функционалу, которая генерится из самого файла.
+        make или make help
+
+        ``` bash 
+        help                           This help.
+        build                          Build all docker images
+        build-comment                  Build comment image
+        build-post                     Build post image
+        build-ui                       Build ui image
+        build-cloudprober              Build cloudprober image
+        build-prometheus               Build prometheus image
+        build-mongodb-exporter         Build mondo-exporter image
+        release                        Make a release by building and publishing the `{version}` ans `latest` tagged containers to Docker Hub
+        publish                        Publish the `{version}` ans `latest` tagged containers to Docker Hub
+        publish-latest                 Publish the `latest` taged container to Docker HubDocker Hub
+        publish-version                Publish the `{version}` taged container to Docker Hub
+        tag                            Generate container tag
+        repo-login                     Login to Docker Hub
+        ```
+    - Позводяет выполнить билд всех образов либо для определенного приложения.
+        make build
+        make build-ui
+    - Назначить тег для образов и загрузить на docker hub. Версия для тега берется из файла <каталог приложения>/VERSION (например: src/comment/VERSION). Для образов мониторинга теги версий не назначаются, версии зафиксированы в докерфайлах (можно доделать). Можно отдельно загружать версии latest или с определенным номером.
+        make tag
+        make release
+    - Логин в docker hub выполняется через файл ~/.docker-repo.cred (в котором должен быть пароль, путь до файл прописан в config.env), если такого файла нет, то требуется интерактивный ввод пароля.
+
+- Созданные образы загружены на Docker Hub:
+    https://cloud.docker.com/repository/docker/tenki/mongodb-exporter
+    https://cloud.docker.com/repository/docker/tenki/prometheus
+    https://cloud.docker.com/repository/docker/tenki/cloudprober
+    https://cloud.docker.com/repository/docker/tenki/ui
+    https://cloud.docker.com/repository/docker/tenki/post
+    https://cloud.docker.com/repository/docker/tenki/comment
