@@ -1,0 +1,4 @@
+FROM grafana/grafana:5.0.0
+ADD ./provisioning /etc/grafana/provisioning
+COPY ./dashboards /var/lib/grafana/dashboards
+RUN sed -i -e 's/${DS_PROMETHEUS}/Prometheus/g; s/${DS_INFLUXDB}/InfluxDB/g' /var/lib/grafana/dashboards/*.json

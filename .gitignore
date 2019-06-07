@@ -1,5 +1,5 @@
 .venv/
-service_account.json
+*service_account.json
 *.retry
 *variables.json
 *.tfstate
@@ -15,4 +15,4 @@ nickjj.docker
 credentials.yml
 slack.webhook
 temp/
-
+geerlingguy.*

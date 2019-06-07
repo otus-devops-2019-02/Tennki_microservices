@@ -1,0 +1,7 @@
+project = "project"
+public_key_path = "~/.ssh/auser.pub"
+private_key_path = "~/.ssh/user"
+disk_image = "ubuntu-1604-lts"
+zone = "europe-west3-a"
+
+

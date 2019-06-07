@@ -1,0 +1,20 @@
+awx:
+  address: https://35.246.128.102/api
+  credentials:
+    username: my-user
+    password: my-password
+  insecure: false
+  project: "Project_X"
+  jobStatusCheckInterval: 5m
+
+throttling:
+  interval: 5m
+
+rules:
+- metadata:
+    name: Restart App
+  labels:
+    alertname: "InstanceDown"
+  awxJob:
+    template: "Deploy"
+
