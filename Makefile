@@ -4,7 +4,7 @@ cnf ?= config.env
 include $(cnf)
 export $(shell sed 's/=.*//' $(cnf))
 
-APPS = comment post ui cloudprober prometheus mongodb-exporter
+APPS = comment post ui cloudprober prometheus mongodb-exporter grafana alertmanager
 COMMENT_PATH = $(APP_DIR)/comment
 POST_PATH = $(APP_DIR)/post-py
 UI_PATH = $(APP_DIR)/ui
@@ -17,10 +17,24 @@ UI_VERSION = $(shell head -n 1 $(UI_PATH)/VERSION)
 
 CLOUDPROBER_PATH = $(MONITORING_DIR)/cloudprober
 PROMETHEUS_PATH = $(MONITORING_DIR)/prometheus
+
 MONGO_EXPORTER_PATH = $(MONITORING_DIR)/mongodb-exporter
 CLOUDPROBER_DEP = $(shell echo $(shell find $(CLOUDPROBER_PATH) -type f))
+
 PROMETHEUS_DEP = $(shell echo $(shell find $(PROMETHEUS_PATH) -type f))
 MONGO_EXPORTER_DEP = $(shell echo $(shell find $(MONGO_EXPORTER_PATH) -type f))
+
+ALERTMANAGER_PATH = $(MONITORING_DIR)/alertmanager
+ALERTMANAGER_DEP = $(shell echo $(shell find $(ALERTMANAGER_PATH) -type f))
+
+GRAFANA_PATH = $(MONITORING_DIR)/grafana
+GRAFANA_DEP = $(shell echo $(shell find $(GRAFANA_PATH) -type f))
+
+AUTOHEAL_PATH = $(MONITORING_DIR)/autoheal
+AUTOHEAL_DEP = $(shell echo $(shell find $(AUTOHEAL_PATH) -type f))
+
+TELEGRAF_PATH = $(MONITORING_DIR)/telegraf
+TELEGRAF_DEP = $(shell echo $(shell find $(TELEGRAF_PATH) -type f))
 
 # HELP
 # This will output the help for each task
@@ -33,7 +47,7 @@ help: ## This help.
 
 # DOCKER TASKS
 # Build docker images
-build: build-comment build-post build-ui build-cloudprober build-prometheus build-mongodb-exporter ## Build all docker images
+build: build-comment build-post build-ui build-cloudprober build-prometheus build-mongodb-exporter build-grafana build-alertmanager build-autoheal build-telegraf ## Build all docker images
 
 build-comment: $(COMMENT_DEP) ## Build comment image
 	docker build -t $(DOCKER_REPO)/comment $(COMMENT_PATH)
@@ -53,6 +67,19 @@ build-prometheus: $(PROMETHEUS_DEP) ## Build prometheus image
 build-mongodb-exporter: $(MONGO_EXPORTER_DEP) ## Build mondo-exporter image
 	docker build -t $(DOCKER_REPO)/mongodb-exporter $(MONGO_EXPORTER_PATH)
 
+build-alertmanager: $(ALERTMANAGER_DEP) ## Build alertmanager image
+	docker build -t $(DOCKER_REPO)/alertmanager $(ALERTMANAGER_PATH)
+
+build-grafana: $(GRAFANA_DEP) ## Build grafana image
+	docker build -t $(DOCKER_REPO)/grafana $(GRAFANA_PATH)
+
+build-autoheal: $(AUTOHEAL_DEP) ## Build autoheal image
+	docker build -t $(DOCKER_REPO)/autoheal $(AUTOHEAL_PATH)
+
+build-telegraf: $(TELEGRAFL_DEP) ## Build telegraf image
+	docker build -t $(DOCKER_REPO)/telegraf $(TELEGRAF_PATH)
+
+
 release: build publish ## Make a release by building and publishing the `{version}` ans `latest` tagged containers to Docker Hub
 
 # Docker publish
@@ -63,6 +90,7 @@ publish-latest: repo-login ## Publish the `latest` taged container to Docker Hub
 	for app in $(APPS); do \
 		docker push $(DOCKER_REPO)/$${app}:latest; \
 	done
+
 publish-version: repo-login tag ## Publish the `{version}` taged container to Docker Hub
 	@echo 'publish $(VERSION) to $(DOCKER_REPO)'
 	docker push $(DOCKER_REPO)/comment:$(COMMENT_VERSION)

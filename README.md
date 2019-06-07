@@ -186,3 +186,26 @@ docker-compose -p stage -f docker-compose.yml -f docker-compose.override.stage.y
     https://cloud.docker.com/repository/docker/tenki/ui
     https://cloud.docker.com/repository/docker/tenki/post
     https://cloud.docker.com/repository/docker/tenki/comment
+
+# Monitoring-2
+- Ознакомление с инструментами мониторинга docker контейнеров.
+    - Добавлен сбор метрик docker через google/cadvisor.
+    - Добавлен сбор метрик с docker демона. Адрес docker хоста передается в compose файле через переменную окружения.  
+        extra_hosts:
+        - "dockerhost:${DOCKERHOST}"
+        Добавлен дашборд monitoring/grafana/dashboards/Docker-engine-metrics_rev3.json
+    - Добавлен сбор метрик с docker хоста через telegraf. Telegraf используется в связке с InfluxDB. Сборка образа описана в monitoring/telegraf.
+        Добавлен дашборд monitoring/grafana/dashboards/Influxdb-docker-swarm-aware_rev1.json
+    - Добавлен сбор метрик со stackdriver. Использован готовый экспортер frodenas/stackdriver-exporter. Доступ к api выполняется с использованием сервисного аккаунта, json которого монтируется с docker хоста в контейнер.
+        Удалось получить данные по compute instance "stackdriver_gce_instance_compute_googleapis_com_instance_cpu_*" и "stackdriver_gce_instance_compute_googleapis_com_instance_disk_*". В принципе можно получить любой набор метрик, который отдает google.
+        P.S. В grafana добавлена возможность использовать stackdriver в качестве датасорса без участия экспортера. (Available as a beta feature in Grafana v5.3.x and v5.4.x. Officially released in Grafana v6.0.0)
+- Визуализация данных с помощью Grafana. Настроен автопровиженинг источников данных и дашбордов grafana сборка и необходимые файлы описаны в monitoring/grafana, поднимается как сервис grafana_autoprovision.
+    P.S. Не понятно почему не работает схема с заменой приведенная в monitoring/grafana/Dockerfile.1. Пришлось написать скрипт (monitoring/grafana/kostyl.sh), который заменяет переменные в json дашбордов на имена datasource в момент запуска контейнера.
+- Развернут кэширующий прокси Trikster. Запуск описан в docker/docker-compose-monitoring.yml. Grafana перенастроена на него.
+- Настроены различные метрики приложения, а так же алетры по ним.
+- Настройка алертинга через alertmanager с отправкой уведомлений в slack и почту. 
+   - Ссылка на чат https://devops-team-otus.slack.com/messages/CH3LFN14N/
+   - Для проверки почтовых уведомлений поднят fake-smtp-server (gessnerfl/fake-smtp-server). Запускается с остальными сервисми мониторинга из docker-compose-monitoring.yml
+- В makefile добавлен билд новых сервисов.
+- Развернут AWX для управлением приложением. Для развертывания использован terraform в связке с ansible (monitoring/awx). Для установки awx используется ansible роль geerlingguy.awx. В awx создан проект для запуска приложения (https://github.com/Tennki/awx_project_x).
+P.S. Не удалось до конца настроить связку awx с autoheal т.к. autoheal отказался запускаться без кубера. Сборка autoheal описана в докер-файле в директории monitoring/autoheal.
