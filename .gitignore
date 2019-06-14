@@ -16,3 +16,8 @@ credentials.yml
 slack.webhook
 temp/
 geerlingguy.*
+*.pem
+*.csr
+*-csr.json
+ca-config.json
+env-vars.yml
