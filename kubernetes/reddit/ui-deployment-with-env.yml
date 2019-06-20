@@ -20,7 +20,7 @@ spec:
         component: ui
     spec:
       containers:
-      - image: tenki/ui
+      - image: chromko/ui
         name: ui
         env:
         - name: ENV
