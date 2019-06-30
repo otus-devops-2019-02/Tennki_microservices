@@ -21,3 +21,4 @@ geerlingguy.*
 *-csr.json
 ca-config.json
 env-vars.yml
+tls.*
