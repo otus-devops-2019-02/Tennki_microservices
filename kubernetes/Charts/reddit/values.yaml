@@ -1,0 +1,20 @@
+comment:
+  image:
+    repository: tenki/comment
+    tag: latest
+  service:
+    externalPort: 9292
+
+post:
+  image:
+    repository: tenki/post
+    tag: latest
+    service:
+      externalPort: 5000
+
+ui:
+  image:
+    repository: tenki
+    tag: latest
+    service:
+      externalPort: 9292
