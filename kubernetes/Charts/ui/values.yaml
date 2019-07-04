@@ -1,0 +1,16 @@
+---
+service:
+  internalPort: 9292
+  externalPort: 9292
+
+ingress:
+  class: nginx
+
+image:
+  repository: tenki
+  tag: latest
+
+postHost:
+postPort:
+commentHost:
+commentPort:
