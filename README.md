@@ -260,3 +260,44 @@ P.S. Не удалось до конца настроить связку awx с 
 - Созданы helm chart-ы для сервисов приложения. Также подготовлен единый chart с зависимостями для развертывания приложения.
 - Развернут Gitlab через helm
 - Созданы gitlab-ci.yml для компонентов приложения и для деплоя приложения в k8s.
+
+
+# Kubernetes-5
+- Установлен ингресс nginx ingress controller
+``` bash
+helm install stable/nginx-ingress --name nginx
+```
+- Запущено тестовое приложение в разных нейспейсах
+``` bash
+helm install reddit --name reddit-test
+helm install reddit --name production  --namespace production
+helm install reddit --name staging  --namespace staging
+```
+- Установен prometheus. Настройки endpoint-ов приложения разделены на три части: post-endpoints, comment-endpoints, ui-endpoints (kubernetes/Charts/prometheus-operator/custom_values.yaml).
+``` bash
+helm fetch --untar stable/prometheus
+helm upgrade prom . -f custom_values.yml --install
+```
+- Установлен prometheus-operator через helm chart. Конфигурация приведена в файле kubernetes/Charts/prometheus-operator/custom_values.yaml Prometheus, grafana и alertmanager доступны через ингресс по адресам:reddit-prometheus, reddit-grafana, reddit-alertmanager.
+``` bash
+helm upgrade prom-oper . -f custom_values.yaml --install
+```
+- Установлена grafana
+``` bash
+helm upgrade --install grafana stable/grafana --set "adminPassword=admin" \
+--set "service.type=NodePort" \
+--set "ingress.enabled=true" \
+--set "ingress.hosts={reddit-grafana}"
+```
+- Установлен EFK, манифесты находятся в каталоге kubernetes/efk
+``` bash
+kubectl apply -f ./efk
+```
+- Установлена kibana 
+``` bash
+helm upgrade --install kibana stable/kibana \
+--set "ingress.enabled=true" \
+--set "ingress.hosts={reddit-kibana}" \
+--set "env.ELASTICSEARCH_URL=http://elasticsearch-logging:9200" \
+--version 0.1.1
+```
